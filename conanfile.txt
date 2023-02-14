@@ -1,0 +1,16 @@
+[requires]
+ogre3d/13.6.2@anotherfoxguy/stable
+
+[generators]
+CMakeDeps
+CMakeToolchain
+
+[imports]
+bin, *.dll   -> RunPath/bin @ keep_path=False
+lib, *.dll   -> RunPath/bin @ keep_path=False
+lib, *.dylib -> RunPath/bin @ keep_path=False
+lib, *.so*   -> RunPath/bin @ keep_path=False
+
+[options]
+ogre3d:nodeless_positioning=True
+ogre3d:resourcemanager_strict=off

@@ -1,9 +1,4 @@
-cmake_minimum_required(VERSION 2.8.10)
-
-# CMake policy introduced in relation to Qt 5
-if("${CMAKE_VERSION}" VERSION_GREATER 2.8.11)   
-	cmake_policy(SET CMP0020 OLD)
-endif()
+cmake_minimum_required(VERSION 3.1)
 
 project(QtOgitor)
 
@@ -24,7 +19,7 @@ if(NOT Qt5Widgets_FOUND)
     message(SEND_ERROR "Failed to find Qt 5.0.0 or greater.")
 else(NOT Qt5Widgets_FOUND)
     set(CMAKE_PACKAGE_QTGUI TRUE)
-	
+
 	file(GLOB UI_FILES *.ui)
 
     set(SRCS
@@ -143,7 +138,7 @@ else(NOT Qt5Widgets_FOUND)
         ./include/uiterrainsquare.hxx
         ./include/userdefined.hxx
     )
-    
+
     if(Qt5LinguistTools_FOUND)
         SET(QTOGITOR_TS_FILES
             languages/ogitor_da.ts
@@ -237,26 +232,26 @@ else(NOT Qt5Widgets_FOUND)
         get_target_property(qtOgitorLocation qtOgitor LOCATION)
         get_dotapp_dir(${qtOgitorLocation} qtOgitorLocationAppdir)
         set(MakeBundle
-            cp ${QtSolutions_PropertyBrowser_BINARY_DIR}/${CMAKE_CFG_INTDIR}/libQtSolutions_PropertyBrowser*.dylib ${OGRE_LIBRARIES}/../../libOgreTerrain*.dylib ${OGRE_LIBRARIES}/../../libOgrePaging*.dylib ${qtOgitorLocationAppdir}/Contents/Components && 
-            cp ${OGRE_LIBRARIES}/../../libRenderSystem_GL*.dylib ${OGRE_LIBRARIES}/../../libPlugin_OctreeSceneManager*.dylib ${OGRE_LIBRARIES}/../../libPlugin_ParticleFX*.dylib ${OGRE_Plugin_CgProgramManager_LIBRARY_DBG} ${qtOgitorLocationAppdir}/Contents/Plugins && 
+            cp ${QtSolutions_PropertyBrowser_BINARY_DIR}/${CMAKE_CFG_INTDIR}/libQtSolutions_PropertyBrowser*.dylib ${OGRE_LIBRARIES}/../../libOgreTerrain*.dylib ${OGRE_LIBRARIES}/../../libOgrePaging*.dylib ${qtOgitorLocationAppdir}/Contents/Components &&
+            cp ${OGRE_LIBRARIES}/../../libRenderSystem_GL*.dylib ${OGRE_LIBRARIES}/../../libPlugin_OctreeSceneManager*.dylib ${OGRE_LIBRARIES}/../../libPlugin_ParticleFX*.dylib ${OGRE_Plugin_CgProgramManager_LIBRARY_DBG} ${qtOgitorLocationAppdir}/Contents/Plugins &&
             cp ../lib/${CMAKE_CFG_INTDIR}/libOgreOfsPlugin*.dylib ${qtOgitorLocationAppdir}/Contents/Plugins &&
-            cp -r ${OGRE_LIBRARY} ${qtOgitorLocationAppdir}/Contents/Frameworks && 
-            cp -r ../lib/${CMAKE_CFG_INTDIR}/Ogitor.framework ${qtOgitorLocationAppdir}/Contents/Frameworks && 
-            cp ../Plugins/lib/${CMAKE_CFG_INTDIR}/libOgCaelum*.dylib ../Plugins/lib/${CMAKE_CFG_INTDIR}/libOgHydrax*.dylib ../Plugins/lib/${CMAKE_CFG_INTDIR}/libOgModularZone*.dylib ../Plugins/lib/${CMAKE_CFG_INTDIR}/libOgSkyx*.dylib ../Plugins/lib/${CMAKE_CFG_INTDIR}/libDotSceneSerializer*.dylib ../Dependencies/lib/libGenericTextEditor*.dylib ../Dependencies/lib/libImageConverter*.dylib ../Dependencies/lib/libGenericImageEditor*.dylib ../Dependencies/lib/libOFS*.dylib ${qtOgitorLocationAppdir}/Contents/Plugins/Ogitor && 
-            cp -r ../../RunPath/Media ${qtOgitorLocationAppdir}/Contents/Resources && 
-            cp -r ../../RunPath/Plugins/Icons ${qtOgitorLocationAppdir}/Contents/Plugins && 
+            cp -r ${OGRE_LIBRARY} ${qtOgitorLocationAppdir}/Contents/Frameworks &&
+            cp -r ../lib/${CMAKE_CFG_INTDIR}/Ogitor.framework ${qtOgitorLocationAppdir}/Contents/Frameworks &&
+            cp ../Plugins/lib/${CMAKE_CFG_INTDIR}/libOgCaelum*.dylib ../Plugins/lib/${CMAKE_CFG_INTDIR}/libOgHydrax*.dylib ../Plugins/lib/${CMAKE_CFG_INTDIR}/libOgModularZone*.dylib ../Plugins/lib/${CMAKE_CFG_INTDIR}/libOgSkyx*.dylib ../Plugins/lib/${CMAKE_CFG_INTDIR}/libDotSceneSerializer*.dylib ../Dependencies/lib/libGenericTextEditor*.dylib ../Dependencies/lib/libImageConverter*.dylib ../Dependencies/lib/libGenericImageEditor*.dylib ../Dependencies/lib/libOFS*.dylib ${qtOgitorLocationAppdir}/Contents/Plugins/Ogitor &&
+            cp -r ../../RunPath/Media ${qtOgitorLocationAppdir}/Contents/Resources &&
+            cp -r ../../RunPath/Plugins/Icons ${qtOgitorLocationAppdir}/Contents/Plugins &&
             cp ../../Mac/plugins.cfg ../../Mac/resources.cfg ${qtOgitorLocationAppdir}/Contents/Resources
         )
         ADD_CUSTOM_COMMAND(TARGET qtOgitor POST_BUILD COMMAND mkdir -p ${qtOgitorLocationAppdir}/Contents/Resources && mkdir -p ${qtOgitorLocationAppdir}/Contents/Components && mkdir -p ${qtOgitorLocationAppdir}/Contents/Plugins/Ogitor && mkdir -p ${qtOgitorLocationAppdir}/Contents/Frameworks)
         ADD_CUSTOM_COMMAND(TARGET qtOgitor POST_BUILD COMMAND ${MakeBundle})
     endif(NOT APPLE)
-	
+
     # tell CMake that qtOgitor might depend on project/media
     if(OGITOR_DOWNLOAD_SAMPLEPROJECT)
         add_dependencies(qtOgitor SampleProject)
     endif(OGITOR_DOWNLOAD_SAMPLEPROJECT)
 
-    list(APPEND OGRE_LIBRARIES OgreBitesQt)
+    # list(APPEND OGRE_LIBRARIES OgreBitesQt)
 
     if(OGITOR_MESHMAGICK_INTERFACE)
         target_link_libraries(qtOgitor QtPropertyBrowser ${QT_QTMAIN_LIBRARY} ${QT_LIBRARIES} ${OGRE_LIBRARIES} Ogitor meshmagick_shared_lib ImageConverter GenericTextEditor GenericImageEditor TinyXML)
@@ -280,7 +275,7 @@ else(NOT Qt5Widgets_FOUND)
         add_custom_command(TARGET qtOgitor POST_BUILD
             COMMAND copy \"$(TargetPath)\" ..\\RunPath\\bin)
     endif(MSVC_IDE)
-	
+
 	qt5_use_modules(qtOgitor Widgets)
 
     if(UNIX AND NOT APPLE)
@@ -294,7 +289,7 @@ else(NOT Qt5Widgets_FOUND)
     endif(UNIX AND NOT APPLE)
 
     if(UNIX)
-    
+
         if(OGITOR_DIST)
             install(
                 DIRECTORY ${CMAKE_SOURCE_DIR}/qtOgitor/share
@@ -308,7 +303,7 @@ else(NOT Qt5Widgets_FOUND)
 
         endif(OGITOR_DIST)
     endif(UNIX)
-    
+
     if(Qt5LinguistTools_FOUND)
         install(FILES ${QTOGITOR_TS_FILES} DESTINATION ${OGITOR_LANGUAGE_INSTALL_PATH})
     endif()
@@ -322,7 +317,7 @@ else(NOT Qt5Widgets_FOUND)
         install(TARGETS qtOgitor
             RUNTIME DESTINATION bin
             CONFIGURATIONS Debug Release RelWithDebInfo MinSizeRel)
-        
+
         if (MSVC)
             configure_file(${Ogitor_SOURCE_DIR}/CMakeModules/VisualStudioUserFile.vcproj.user.in ${CMAKE_CURRENT_BINARY_DIR}/QtOgitor.vcproj.user @ONLY)
             configure_file(${Ogitor_SOURCE_DIR}/CMakeModules/VisualStudioUserFile.vcxproj.user.in ${CMAKE_CURRENT_BINARY_DIR}/QtOgitor.vcxproj.user @ONLY)

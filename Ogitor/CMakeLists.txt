@@ -130,6 +130,8 @@ set(Ogitor_srcs
 	${CMAKE_BINARY_DIR}/Ogitor/src/OgitorsGlobals.cpp	
 )
 
+set(CMAKE_CXX_STANDARD 11)
+
 #add_library(Ogitor SHARED ${Ogitor_hdrs} ${Ogitor_srcs})
 ogitor_add_library(Ogitor SHARED ${Ogitor_hdrs} ${Ogitor_srcs})
 set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib)

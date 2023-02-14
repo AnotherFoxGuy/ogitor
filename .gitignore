@@ -1,2 +1,4 @@
 /RunPath/Projects
 
+cmake-build-*
+.idea

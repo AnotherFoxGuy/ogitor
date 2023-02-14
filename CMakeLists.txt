@@ -5,7 +5,7 @@
 # and provide build configuration options.
 ######################################################################
 
-cmake_minimum_required(VERSION 2.8.10)
+cmake_minimum_required(VERSION 3.1)
 
 # Works around warnings libraries linked against that don't
 # have absolute paths (e.g. -lOgreMain)
@@ -15,10 +15,7 @@ cmake_policy(SET CMP0003 NEW)
 # statements.
 cmake_policy(SET CMP0005 NEW)
 
-# CMake policy introduced in relation to Qt 5.1
-if("${CMAKE_VERSION}" VERSION_GREATER 2.8.11)   
-	cmake_policy(SET CMP0020 OLD)
-endif()
+set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH}" "E:/Qt/5.15.2/msvc2019_64")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -40,89 +37,89 @@ option(OGITOR_DIST "Ogitor Installer Installation" FALSE)
 message(STATUS "OGITOR_DIST is set to ${OGITOR_DIST}")
 
 # Handle install prefix
-if(WIN32)
-    if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+if (WIN32)
+    if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
         set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/RunPath" CACHE PATH "Ogitor install prefix" FORCE)
     endif (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-else(WIN32)
-    if(NOT OGITOR_DIST)
+else (WIN32)
+    if (NOT OGITOR_DIST)
         set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/RunPath" CACHE PATH "Ogitor install prefix" FORCE)
-    endif(NOT OGITOR_DIST)
-endif(WIN32)
+    endif (NOT OGITOR_DIST)
+endif (WIN32)
 
 option(OGITOR_MESHMAGICK_INTERFACE "Use MeshMagick widget" FALSE)
 
 option(OGITOR_DOWNLOAD_SAMPLEPROJECT "Download and install sample project" TRUE)
 
-if(CMAKE_BUILD_TYPE STREQUAL "")
+if (CMAKE_BUILD_TYPE STREQUAL "")
     # CMake defaults to leaving CMAKE_BUILD_TYPE empty. This screws up
     # differentiation between debug and release builds.
     set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "Choose the type of build, options are: None (CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel." FORCE)
 endif ()
 
-if(WIN32)
-	set(CMAKE_DEBUG_POSTFIX "_d")
-endif(WIN32)
+if (WIN32)
+    set(CMAKE_DEBUG_POSTFIX "_d")
+endif (WIN32)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMakeModules/;${CMAKE_MODULE_PATH}")
-include (FindPkgMacros)
+include(FindPkgMacros)
 
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
 find_package(OGRE REQUIRED CONFIG)
 
-if(UNIX AND NOT OGITOR_DIST)
- set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
- set(CMAKE_INSTALL_RPATH ${CMAKE_BINARY_DIR}/lib ${OGRE_LIBRARY_DIRS})
-endif(UNIX AND NOT OGITOR_DIST)
+if (UNIX AND NOT OGITOR_DIST)
+    set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+    set(CMAKE_INSTALL_RPATH ${CMAKE_BINARY_DIR}/lib ${OGRE_LIBRARY_DIRS})
+endif (UNIX AND NOT OGITOR_DIST)
 
 include(CheckTypeSize)
 CHECK_TYPE_SIZE("void*" OGITOR_PTR_SIZE BUILTIN_TYPES_ONLY)
 if (OGITOR_PTR_SIZE EQUAL 8)
-	set(OGITOR_PLATFORM_X64 TRUE)
+    set(OGITOR_PLATFORM_X64 TRUE)
 else ()
-	set(OGITOR_PLATFORM_X64 FALSE)
+    set(OGITOR_PLATFORM_X64 FALSE)
 endif ()
 
-if(UNIX)
-  if(NOT OGITOR_PLATFORM_X64)
-    add_definitions(-D_FILE_OFFSET_BITS=64)
-  endif(NOT OGITOR_PLATFORM_X64)
+if (UNIX)
+    if (NOT OGITOR_PLATFORM_X64)
+        add_definitions(-D_FILE_OFFSET_BITS=64)
+    endif (NOT OGITOR_PLATFORM_X64)
 
-  # Fix x64 issues on Linux
-  if(OGITOR_PLATFORM_X64 AND NOT APPLE)
-      add_definitions(-fPIC)
-      set(LIB_SUFFIX 64)
-  else(OGITOR_PLATFORM_X64 AND NOT APPLE)
-      set(LIB_SUFFIX "")
-  endif(OGITOR_PLATFORM_X64 AND NOT APPLE)
-endif(UNIX)
+    # Fix x64 issues on Linux
+    if (OGITOR_PLATFORM_X64 AND NOT APPLE)
+        add_definitions(-fPIC)
+        set(LIB_SUFFIX 64)
+    else (OGITOR_PLATFORM_X64 AND NOT APPLE)
+        set(LIB_SUFFIX "")
+    endif (OGITOR_PLATFORM_X64 AND NOT APPLE)
+endif (UNIX)
 
 include_directories(${OGRE_INCLUDE_DIRS})
 
 # Ogitor
 set(OGITOR_INCLUDES "${CMAKE_SOURCE_DIR}/Ogitor/include")
-set(OGITOR_LIBPATH  "${CMAKE_SOURCE_DIR}/Ogitor/lib")
+set(OGITOR_LIBPATH "${CMAKE_SOURCE_DIR}/Ogitor/lib")
 
 # Dependencies
 set(DEPENDENCIES_INCLUDES
-    "${CMAKE_CURRENT_SOURCE_DIR}/Dependencies/pagedgeometry/include"
-    "${CMAKE_BINARY_DIR}/Dependencies/pagedgeometry/include"
-    "${CMAKE_BINARY_DIR}/Dependencies/src/Meshmagick/include"
-    "${CMAKE_CURRENT_SOURCE_DIR}/Dependencies/Angelscript/include"
-    "${CMAKE_CURRENT_SOURCE_DIR}/Dependencies/Angelscript/add_on/autowrapper"
-    "${CMAKE_CURRENT_SOURCE_DIR}/Dependencies/Angelscript/add_on/scriptbuilder"
-    "${CMAKE_CURRENT_SOURCE_DIR}/Dependencies/Angelscript/add_on/scriptstdstring"
-    "${CMAKE_CURRENT_SOURCE_DIR}/Dependencies/Angelscript/add_on/scriptmath"
-    "${CMAKE_CURRENT_SOURCE_DIR}/Dependencies/Angelscript/add_on/scriptarray"
-    "${CMAKE_CURRENT_SOURCE_DIR}/Dependencies/Angelscript/add_on/quaternion"
-    "${CMAKE_CURRENT_SOURCE_DIR}/Dependencies/Angelscript/add_on/vector3"
-    "${CMAKE_CURRENT_SOURCE_DIR}/Dependencies/Angelscript/add_on/debugger"
-    "${CMAKE_CURRENT_SOURCE_DIR}/Dependencies/OFS/include"
-    "${CMAKE_CURRENT_SOURCE_DIR}/Dependencies/OgreTerrainConverter/include"
-    "${CMAKE_CURRENT_SOURCE_DIR}/Dependencies/ImageConverter/include"
-    "${CMAKE_CURRENT_SOURCE_DIR}/Dependencies/GenericTextEditor/include"
-    "${CMAKE_CURRENT_SOURCE_DIR}/Dependencies/GenericImageEditor/include"
-)
+        "${CMAKE_CURRENT_SOURCE_DIR}/Dependencies/pagedgeometry/include"
+        "${CMAKE_BINARY_DIR}/Dependencies/pagedgeometry/include"
+        "${CMAKE_BINARY_DIR}/Dependencies/src/Meshmagick/include"
+        "${CMAKE_CURRENT_SOURCE_DIR}/Dependencies/Angelscript/include"
+        "${CMAKE_CURRENT_SOURCE_DIR}/Dependencies/Angelscript/add_on/autowrapper"
+        "${CMAKE_CURRENT_SOURCE_DIR}/Dependencies/Angelscript/add_on/scriptbuilder"
+        "${CMAKE_CURRENT_SOURCE_DIR}/Dependencies/Angelscript/add_on/scriptstdstring"
+        "${CMAKE_CURRENT_SOURCE_DIR}/Dependencies/Angelscript/add_on/scriptmath"
+        "${CMAKE_CURRENT_SOURCE_DIR}/Dependencies/Angelscript/add_on/scriptarray"
+        "${CMAKE_CURRENT_SOURCE_DIR}/Dependencies/Angelscript/add_on/quaternion"
+        "${CMAKE_CURRENT_SOURCE_DIR}/Dependencies/Angelscript/add_on/vector3"
+        "${CMAKE_CURRENT_SOURCE_DIR}/Dependencies/Angelscript/add_on/debugger"
+        "${CMAKE_CURRENT_SOURCE_DIR}/Dependencies/OFS/include"
+        "${CMAKE_CURRENT_SOURCE_DIR}/Dependencies/OgreTerrainConverter/include"
+        "${CMAKE_CURRENT_SOURCE_DIR}/Dependencies/ImageConverter/include"
+        "${CMAKE_CURRENT_SOURCE_DIR}/Dependencies/GenericTextEditor/include"
+        "${CMAKE_CURRENT_SOURCE_DIR}/Dependencies/GenericImageEditor/include"
+        )
 set(DEPENDENCIES_LIBPATH ${CMAKE_BINARY_DIR}/Dependencies/lib)
 
 #set_target_properties(ALL_BUILD PROPERTIES SOLUTION_FOLDER CMake)
@@ -140,28 +137,28 @@ option(OGITOR_UNITY_BUILD "Enable unity build for Ogitor." FALSE)
 set(OGITOR_UNITY_FILES_PER_UNIT "50" CACHE STRING "Number of files per compilation unit in Unity build.")
 
 # configure global paths for OgitorsGlobals
-if(UNIX)
+if (UNIX)
     set(DBG_POSTFIX "")
-	set(OGITOR_BIN_PATH "${CMAKE_INSTALL_PREFIX}/bin" CACHE PATH "Ogitor bin path" FORCE)
-	set(OGITOR_RUN_PATH "${CMAKE_INSTALL_PREFIX}/bin" CACHE PATH "Ogitor run path" FORCE)
-	set(OGITOR_RESOURCE_PATH "${CMAKE_INSTALL_PREFIX}/share/ogitor" CACHE PATH "Ogitor resource path" FORCE)
-	set(OGITOR_LANGUAGE_PATH "${CMAKE_INSTALL_PREFIX}/share/ogitor/languages" CACHE PATH "Ogitor languages path" FORCE)
-	set(OGITOR_MEDIA_PATH "${CMAKE_INSTALL_PREFIX}/share/ogitor/Media" CACHE PATH "Ogitor media path" FORCE)
-	set(OGITOR_PROJECTS_PATH "${CMAKE_INSTALL_PREFIX}/Projects" CACHE PATH "Ogitor Projects path" FORCE)
-	set(OGITOR_SCRIPTS_PATH "${CMAKE_INSTALL_PREFIX}/share/ogitor/Scripts" CACHE PATH "Ogitor scripts path" FORCE)
-	set(OGITOR_PLUGIN_PATH "${CMAKE_INSTALL_PREFIX}/lib/ogitor" CACHE PATH "Ogitor plugins path" FORCE)
+    set(OGITOR_BIN_PATH "${CMAKE_INSTALL_PREFIX}/bin" CACHE PATH "Ogitor bin path" FORCE)
+    set(OGITOR_RUN_PATH "${CMAKE_INSTALL_PREFIX}/bin" CACHE PATH "Ogitor run path" FORCE)
+    set(OGITOR_RESOURCE_PATH "${CMAKE_INSTALL_PREFIX}/share/ogitor" CACHE PATH "Ogitor resource path" FORCE)
+    set(OGITOR_LANGUAGE_PATH "${CMAKE_INSTALL_PREFIX}/share/ogitor/languages" CACHE PATH "Ogitor languages path" FORCE)
+    set(OGITOR_MEDIA_PATH "${CMAKE_INSTALL_PREFIX}/share/ogitor/Media" CACHE PATH "Ogitor media path" FORCE)
+    set(OGITOR_PROJECTS_PATH "${CMAKE_INSTALL_PREFIX}/Projects" CACHE PATH "Ogitor Projects path" FORCE)
+    set(OGITOR_SCRIPTS_PATH "${CMAKE_INSTALL_PREFIX}/share/ogitor/Scripts" CACHE PATH "Ogitor scripts path" FORCE)
+    set(OGITOR_PLUGIN_PATH "${CMAKE_INSTALL_PREFIX}/lib/ogitor" CACHE PATH "Ogitor plugins path" FORCE)
     set(OGITOR_PLUGIN_ICON_PATH "${CMAKE_INSTALL_PREFIX}/share/ogitor/Plugins/Icons" CACHE PATH "Ogitor plugins icon path" FORCE)
-	
-    if(OGITOR_DIST)
+
+    if (OGITOR_DIST)
         set(OGITOR_LIBOGREOFSPLUGIN_PATH "${OGRE_PLUGIN_DIR}" CACHE PATH "libOgreOfsPlugin path" FORCE)
-    else(OGITOR_DIST)
+    else (OGITOR_DIST)
         set(OGITOR_LIBOGREOFSPLUGIN_PATH "${CMAKE_INSTALL_PREFIX}/lib" CACHE PATH "libOgreOfsPlugin path" FORCE)
-    endif(OGITOR_DIST)
-	
-	if (APPLE)
-	set(OGITOR_PLUGIN_ICON_PATH "../Plugins/Icons" CACHE PATH "Ogitor plugins icon path" FORCE)
-	endif(APPLE)
-else(UNIX)
+    endif (OGITOR_DIST)
+
+    if (APPLE)
+        set(OGITOR_PLUGIN_ICON_PATH "../Plugins/Icons" CACHE PATH "Ogitor plugins icon path" FORCE)
+    endif (APPLE)
+else (UNIX)
     # We are on Windows
     set(OGITOR_BIN_PATH "." CACHE PATH "Ogitor bin path" FORCE)
     set(OGITOR_RUN_PATH "." CACHE PATH "Ogitor run path" FORCE)
@@ -173,25 +170,25 @@ else(UNIX)
     set(OGITOR_PLUGIN_PATH "../Plugins" CACHE PATH "Ogitor plugins path" FORCE)
     set(OGITOR_PLUGIN_ICON_PATH "../Plugins/Icons" CACHE PATH "Ogitor plugins icon path" FORCE)
     set(OGITOR_LIBOGREOFSPLUGIN_PATH "." CACHE PATH "libOgreOfsPlugin path" FORCE)
-endif(UNIX)
+endif (UNIX)
 
-if(NOT IS_ABSOLUTE ${OGITOR_LANGUAGE_PATH})
+if (NOT IS_ABSOLUTE ${OGITOR_LANGUAGE_PATH})
     set(OGITOR_LANGUAGE_INSTALL_PATH "${CMAKE_INSTALL_PREFIX}/bin/${OGITOR_LANGUAGE_PATH}")
-else()
+else ()
     set(OGITOR_LANGUAGE_INSTALL_PATH "${OGITOR_LANGUAGE_PATH}")
-endif()
+endif ()
 
-if(NOT IS_ABSOLUTE ${OGITOR_PLUGIN_PATH})
+if (NOT IS_ABSOLUTE ${OGITOR_PLUGIN_PATH})
     set(OGITOR_PLUGIN_INSTALL_PATH "${CMAKE_INSTALL_PREFIX}/bin/${OGITOR_PLUGIN_PATH}")
-else()
+else ()
     set(OGITOR_PLUGIN_INSTALL_PATH "${OGITOR_PLUGIN_PATH}")
-endif()
+endif ()
 
-if(NOT IS_ABSOLUTE ${OGITOR_LIBOGREOFSPLUGIN_PATH})
+if (NOT IS_ABSOLUTE ${OGITOR_LIBOGREOFSPLUGIN_PATH})
     set(OGITOR_LIBOGREOFSPLUGIN_INSTALL_PATH "${CMAKE_INSTALL_PREFIX}/bin/${OGITOR_LIBOGREOFSPLUGIN_PATH}")
-else()
+else ()
     set(OGITOR_LIBOGREOFSPLUGIN_INSTALL_PATH "${OGITOR_LIBOGREOFSPLUGIN_PATH}")
-endif()
+endif ()
 
 configure_file(${CMAKE_SOURCE_DIR}/CMakeModules/Templates/resources.cfg.in ${CMAKE_SOURCE_DIR}/RunPath/bin/resources.cfg)
 
@@ -209,28 +206,28 @@ configure_file(${CMAKE_SOURCE_DIR}/CMakeModules/Templates/resources.cfg.in ${CMA
 #    OGITOR_LIBOGREOFSPLUGIN_PATH
 #)
 
-if(NOT OGITOR_DOWNLOAD_SAMPLEPROJECT)
-    if(NOT IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/RunPath/Projects)
-      message(SEND_ERROR "Failed to find ${CMAKE_CURRENT_SOURCE_DIR}/RunPath/Projects.\nMake sure that you've downloaded 'projects.zip' from Ogitor.org and extracted it into ${CMAKE_CURRENT_SOURCE_DIR}/RunPath as 'Projects'.")
-    endif(NOT IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/RunPath/Projects)
-endif(NOT OGITOR_DOWNLOAD_SAMPLEPROJECT)
+if (NOT OGITOR_DOWNLOAD_SAMPLEPROJECT)
+    if (NOT IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/RunPath/Projects)
+        message(SEND_ERROR "Failed to find ${CMAKE_CURRENT_SOURCE_DIR}/RunPath/Projects.\nMake sure that you've downloaded 'projects.zip' from Ogitor.org and extracted it into ${CMAKE_CURRENT_SOURCE_DIR}/RunPath as 'Projects'.")
+    endif (NOT IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/RunPath/Projects)
+endif (NOT OGITOR_DOWNLOAD_SAMPLEPROJECT)
 
 # External Projects
 include(ExternalProject)
 
 # download, unpack and copy sample project
-if(OGITOR_DOWNLOAD_SAMPLEPROJECT)
+if (OGITOR_DOWNLOAD_SAMPLEPROJECT)
     ExternalProject_Add(SampleProject
-      URL https://github.com/OGRECave/ogitor/releases/download/v0.5.5/projects.zip
-      PREFIX ${CMAKE_CURRENT_BINARY_DIR}
-      PATCH_COMMAND ${CMAKE_COMMAND} -E copy_directory
-          "${CMAKE_CURRENT_BINARY_DIR}/src/SampleProject" "${CMAKE_CURRENT_SOURCE_DIR}/RunPath/Projects"
-      CONFIGURE_COMMAND ""
-      BUILD_COMMAND ""
-      INSTALL_COMMAND ""
-    )
+            URL https://github.com/OGRECave/ogitor/releases/download/v0.5.5/projects.zip
+            PREFIX ${CMAKE_CURRENT_BINARY_DIR}
+            PATCH_COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${CMAKE_CURRENT_BINARY_DIR}/src/SampleProject" "${CMAKE_CURRENT_SOURCE_DIR}/RunPath/Projects"
+            CONFIGURE_COMMAND ""
+            BUILD_COMMAND ""
+            INSTALL_COMMAND ""
+            )
     set_target_properties(SampleProject PROPERTIES FOLDER Assets)
-endif(OGITOR_DOWNLOAD_SAMPLEPROJECT)
+endif (OGITOR_DOWNLOAD_SAMPLEPROJECT)
 
 # Generate OgitorsGlobals.cpp
 configure_file(${CMAKE_SOURCE_DIR}/CMakeModules/Templates/OgitorsGlobals.cpp.in ${CMAKE_BINARY_DIR}/Ogitor/src/OgitorsGlobals.cpp)
@@ -272,35 +269,35 @@ add_subdirectory(RunPath)
 #add_subdirectory(Help)
 
 add_custom_target(lupdate
-    COMMAND ${PROJECT_SOURCE_DIR}/gen-qt-projectfile ${PROJECT_SOURCE_DIR} > ${PROJECT_SOURCE_DIR}/qtOgitor/languages/translate.pro
-    COMMAND lupdate -noobsolete ${PROJECT_SOURCE_DIR}/qtOgitor/languages/translate.pro
-    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/qtOgitor/languages
-)
+        COMMAND ${PROJECT_SOURCE_DIR}/gen-qt-projectfile ${PROJECT_SOURCE_DIR} > ${PROJECT_SOURCE_DIR}/qtOgitor/languages/translate.pro
+        COMMAND lupdate -noobsolete ${PROJECT_SOURCE_DIR}/qtOgitor/languages/translate.pro
+        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/qtOgitor/languages
+        )
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules/install.cmake)
 
-if(UNIX)
+if (UNIX)
     # apple and linux
-    if(OGITOR_DIST)
+    if (OGITOR_DIST)
         FILE(GLOB ogitor_cmake_scripts "${CMAKE_SOURCE_DIR}/CMakeModules/findscripts/*.cmake")
         install(FILES ${ogitor_cmake_scripts}
-            DESTINATION lib/ogitor/cmake
-            CONFIGURATIONS Debug Release RelWithDebInfo MinSizeRel
-        )
-    endif(OGITOR_DIST)
-endif(UNIX)
+                DESTINATION lib/ogitor/cmake
+                CONFIGURATIONS Debug Release RelWithDebInfo MinSizeRel
+                )
+    endif (OGITOR_DIST)
+endif (UNIX)
 
 # uninstall target
 configure_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
-    IMMEDIATE @ONLY)
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+        IMMEDIATE @ONLY)
 
 add_custom_target(uninstall
-    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+        COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 
 # no package support for Linux or Mac, yet.
-if(WIN32 AND NOT UNIX)
+if (WIN32 AND NOT UNIX)
 
     #include (InstallRequiredSystemLibraries)
 
@@ -353,7 +350,7 @@ if(WIN32 AND NOT UNIX)
     \\\${registerExtension} \\\"Ogitor Scene File\\\" \\\".ogscene\\\" \\\"\\\$INSTDIR\\\\bin\\\\qtOgitor.exe\\\"
     ")
 
-    set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS ${CPACK_NSIS_EXTRA_INSTALL_COMMANDS} 'WriteRegStr HKCU \\\"Environment\\\" \\\"OGITOR_HOME\\\" $INSTDIR\\\\bin\\\"' )
+    set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS ${CPACK_NSIS_EXTRA_INSTALL_COMMANDS} 'WriteRegStr HKCU \\\"Environment\\\" \\\"OGITOR_HOME\\\" $INSTDIR\\\\bin\\\"')
 
     set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
     \\\${unregisterExtension} \\\".ogscene\\\" \\\"Ogitor Scene File\\\"
@@ -364,16 +361,16 @@ if(WIN32 AND NOT UNIX)
 
     include(CPack)
 
-#add_custom_target(lupdate
-#   COMMAND ${PROJECT_SOURCE_DIR}/gen-qt-projectfile ${PROJECT_SOURCE_DIR} > ${PROJECT_SOURCE_DIR}/qtOgitor/languages/translate.pro
-#   COMMAND lupdate -noobsolete ${PROJECT_BINARY_DIR}/mscore.pro
-#   WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-#   )
+    #add_custom_target(lupdate
+    #   COMMAND ${PROJECT_SOURCE_DIR}/gen-qt-projectfile ${PROJECT_SOURCE_DIR} > ${PROJECT_SOURCE_DIR}/qtOgitor/languages/translate.pro
+    #   COMMAND lupdate -noobsolete ${PROJECT_BINARY_DIR}/mscore.pro
+    #   WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+    #   )
 
-#add_custom_target(lrelease
-#   COMMAND ${PROJECT_SOURCE_DIR}/gen-qt-projectfile ${PROJECT_SOURCE_DIR} > mscore.pro
-#   COMMAND lrelease ${PROJECT_BINARY_DIR}/mscore.pro
-#   WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-#   )
+    #add_custom_target(lrelease
+    #   COMMAND ${PROJECT_SOURCE_DIR}/gen-qt-projectfile ${PROJECT_SOURCE_DIR} > mscore.pro
+    #   COMMAND lrelease ${PROJECT_BINARY_DIR}/mscore.pro
+    #   WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+    #   )
 
-ENDIF(WIN32 AND NOT UNIX)
+ENDIF (WIN32 AND NOT UNIX)
